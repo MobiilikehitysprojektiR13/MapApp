@@ -1,9 +1,9 @@
 package com.example.mapapp
 
-import android.app.Activity
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -11,9 +11,9 @@ import org.osmdroid.views.MapController
 import org.osmdroid.views.MapView
 
 
-class MainActivity : Activity() {
-    var map: MapView? = null
-    var mapController: MapController? = null
+class MainActivity : AppCompatActivity() {
+   private var map: MapView? = null
+    private var mapController: MapController? = null
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -34,7 +34,6 @@ class MainActivity : Activity() {
         map!!.setTileSource(TileSourceFactory.MAPNIK)
 
         // Enable zoom controls and multi-touch zooming
-        map!!.setBuiltInZoomControls(true)
         map!!.setMultiTouchControls(true)
 
         // Set default zoom level and center point
