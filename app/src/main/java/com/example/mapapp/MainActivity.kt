@@ -8,7 +8,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -90,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 OpenStreetMap(
-                    onMapClick = { geoPoint ->
+                    onMapLongClick = { geoPoint ->
                         tempGeoPoint = geoPoint
                         showDialog = true
                     },
@@ -105,8 +107,9 @@ class MainActivity : AppCompatActivity() {
                             title = textMarker.text
                         ) {Column(
                             modifier = Modifier
-                                .size(100.dp)
-                                .background(color = Color.Gray, shape = RoundedCornerShape(7.dp)),
+                                .height(20.dp)
+                                .width(100.dp)
+                                .background(color = Color.White, shape = RoundedCornerShape(7.dp)),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
