@@ -17,6 +17,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,30 +31,48 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mapapp.TextMarker
+import com.example.mapapp.datastore.StoreMarkers
+import com.utsman.osmandcompose.MapProperties
 import com.utsman.osmandcompose.Marker
 import com.utsman.osmandcompose.OpenStreetMap
+import com.utsman.osmandcompose.ZoomButtonVisibility
 import com.utsman.osmandcompose.rememberCameraState
 import com.utsman.osmandcompose.rememberMarkerState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.osmdroid.library.R
 import org.osmdroid.util.GeoPoint
 
 @Composable
 fun Map() {
 
+
     val context = LocalContext.current
+    val dataStore = StoreMarkers(context)
 
     val cameraState = rememberCameraState {
         geoPoint = GeoPoint(-6.3970066, 106.8224316)
         zoom = 12.0
     }
 
-    val depokIcon: Drawable? by remember {
+    val locationIcon: Drawable? by remember {
+        mutableStateOf(context.getDrawable(R.drawable.ic_menu_mylocation))
+    }
+
+    val poiIcon: Drawable? by remember {
         mutableStateOf(context.getDrawable(R.drawable.marker_default))
     }
 
     val trashcanIcon = Icons.Default.Delete
 
     val markers = remember { mutableStateListOf<TextMarker>() }
+    LaunchedEffect(Unit) {
+        dataStore.getMarkers.collect { markersList ->
+            markers.clear()
+            markers.addAll(markersList)
+        }
+    }
     var showAddMarkerDialog by remember { mutableStateOf(false) }
     var showDeleteMarkerDialog by remember { mutableStateOf(false) }
     var tempGeoPoint by remember { mutableStateOf<GeoPoint?>(null) }
@@ -84,6 +103,10 @@ fun Map() {
                             showAddMarkerDialog = false
                             tempGeoPoint = null
                             textInput = ""
+                            CoroutineScope(Dispatchers.IO).launch {
+                                dataStore.saveMarkers(markers)
+                            }
+
                         }
                     }
                 ) { Text("Add") }
@@ -123,14 +146,15 @@ fun Map() {
             showAddMarkerDialog = true
         },
         modifier = Modifier.fillMaxSize(),
-        cameraState = cameraState
+        cameraState = cameraState,
+        properties = MapProperties(zoomButtonVisibility = ZoomButtonVisibility.NEVER)
     ) {
         markers.forEach { textMarker ->
             val markerState = rememberMarkerState(geoPoint = textMarker.geoPoint)
             //val markerIndex = textMarker.index
             Marker(
                 state = markerState,
-                icon = depokIcon,
+                icon = poiIcon,
                 title = textMarker.text,
                 snippet = "Moro äijät"
             ) {
