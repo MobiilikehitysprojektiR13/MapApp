@@ -10,6 +10,7 @@ data class BottomNavigationItem(
     val icon: ImageVector = Icons.Filled.Home,
     val route: String = ""
 ) {
+
     fun bottomNavigationItems(): List<BottomNavigationItem> = listOf(
         BottomNavigationItem(
             label = "Map",

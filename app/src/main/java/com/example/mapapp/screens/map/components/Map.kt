@@ -4,15 +4,19 @@ import android.graphics.drawable.Drawable
 import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -27,9 +31,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.example.mapapp.TextMarker
 import com.example.mapapp.datastore.StoreMarkers
 import com.utsman.osmandcompose.MapProperties
@@ -52,108 +60,113 @@ fun Map(location: Location?) {
     val dataStore = StoreMarkers(context)
 
     val cameraState = rememberCameraState {
-        GeoPoint(-6.3970066, 106.8224316)
-        zoom = 12.0
+        GeoPoint(39.1422222222, 34.1702777778)
 
     }
     val liveMarkerState = rememberMarkerState(
-        geoPoint = GeoPoint(-6.3970066, 106.8224316)
+        geoPoint = GeoPoint(39.1422222222, 34.1702777778)
     )
 
     if (location != null) {
         cameraState.apply {
             geoPoint = GeoPoint(location.latitude, location.longitude)
+            zoom = 12.0
+        }
 
             liveMarkerState.apply {
                 geoPoint = GeoPoint(location.latitude, location.longitude)
             }
+
+    }
+
+
+    val locationIcon: Drawable? by remember {
+        mutableStateOf(context.getDrawable(R.drawable.ic_menu_mylocation))
+    }
+
+    val locationIconPainter = rememberAsyncImagePainter(model = locationIcon)
+
+    val poiIcon: Drawable? by remember {
+        mutableStateOf(context.getDrawable(R.drawable.marker_default))
+    }
+
+    val trashcanIcon = Icons.Default.Delete
+
+    val markers = remember { mutableStateListOf<TextMarker>() }
+    LaunchedEffect(Unit) {
+        dataStore.getMarkers.collect { markersList ->
+            markers.clear()
+            markers.addAll(markersList)
         }
-
-
-        val locationIcon: Drawable? by remember {
-            mutableStateOf(context.getDrawable(R.drawable.ic_menu_mylocation))
-        }
-
-        val poiIcon: Drawable? by remember {
-            mutableStateOf(context.getDrawable(R.drawable.marker_default))
-        }
-
-        val trashcanIcon = Icons.Default.Delete
-
-        val markers = remember { mutableStateListOf<TextMarker>() }
-        LaunchedEffect(Unit) {
-            dataStore.getMarkers.collect { markersList ->
-                markers.clear()
-                markers.addAll(markersList)
-            }
-        }
-        var showAddMarkerDialog by remember { mutableStateOf(false) }
-        var showDeleteMarkerDialog by remember { mutableStateOf(false) }
-        var tempGeoPoint by remember { mutableStateOf<GeoPoint?>(null) }
-        var textInput by remember { mutableStateOf("") }
+    }
+    var showAddMarkerDialog by remember { mutableStateOf(false) }
+    var showDeleteMarkerDialog by remember { mutableStateOf(false) }
+    var tempGeoPoint by remember { mutableStateOf<GeoPoint?>(null) }
+    var textInput by remember { mutableStateOf("") }
 //var markerToDeleteIndex by remember { mutableStateOf(-1) }
 
-        if (showAddMarkerDialog) {
-            AlertDialog(
-                onDismissRequest = { showAddMarkerDialog = false },
-                title = { Text("Add marker name") },
-                text = {
-                    TextField(
-                        value = textInput,
-                        onValueChange = { textInput = it },
-                        label = { Text("Marker name") }
-                    )
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            if (tempGeoPoint != null && textInput.isNotBlank()) {
-                                markers.add(
-                                    TextMarker(
-                                        tempGeoPoint!!,
-                                        textInput, /*markers.size*/
-                                    )
+    if (showAddMarkerDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddMarkerDialog = false },
+            title = { Text("Add marker name") },
+            text = {
+                TextField(
+                    value = textInput,
+                    onValueChange = { textInput = it },
+                    label = { Text("Marker name") }
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (tempGeoPoint != null && textInput.isNotBlank()) {
+                            markers.add(
+                                TextMarker(
+                                    tempGeoPoint!!,
+                                    textInput, /*markers.size*/
                                 )
-                                showAddMarkerDialog = false
-                                tempGeoPoint = null
-                                textInput = ""
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    dataStore.saveMarkers(markers)
-                                }
-
+                            )
+                            showAddMarkerDialog = false
+                            tempGeoPoint = null
+                            textInput = ""
+                            CoroutineScope(Dispatchers.IO).launch {
+                                dataStore.saveMarkers(markers)
                             }
-                        }
-                    ) { Text("Add") }
-                },
-                dismissButton = {
-                    Button(onClick = {
-                        showAddMarkerDialog = false
-                        textInput = ""
-                    }) { Text("Cancel") }
-                }
-            )
-        }
 
-        if (showDeleteMarkerDialog) {
-            AlertDialog(
-                onDismissRequest = { showDeleteMarkerDialog = false },
-                title = { Text("Delete Marker") },
-                text = { Text("Are you sure you want to delete this marker?") },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            //markers.removeAt(markerToDeleteIndex)
-                            showDeleteMarkerDialog = false
                         }
-                    ) { Text("Delete") }
-                },
-                dismissButton = {
-                    Button(onClick = {
+                    }
+                ) { Text("Add") }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    showAddMarkerDialog = false
+                    textInput = ""
+                }) { Text("Cancel") }
+            }
+        )
+    }
+
+    if (showDeleteMarkerDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteMarkerDialog = false },
+            title = { Text("Delete Marker") },
+            text = { Text("Are you sure you want to delete this marker?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        //markers.removeAt(markerToDeleteIndex)
                         showDeleteMarkerDialog = false
-                    }) { Text("Cancel") }
-                })
-        }
+                    }
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    showDeleteMarkerDialog = false
+                }) { Text("Cancel") }
+            })
+    }
 
+    Box(modifier = Modifier.fillMaxSize()) {
         OpenStreetMap(
             onMapLongClick = { geoPoint ->
                 tempGeoPoint = geoPoint
@@ -209,5 +222,26 @@ fun Map(location: Location?) {
             }
 
         }
+
+        if (location != null) {
+            FloatingActionButton(
+                onClick = {
+                    cameraState.apply {
+                        geoPoint = GeoPoint(location.latitude, location.longitude)
+                        zoom = 12.0
+                    }
+
+                        liveMarkerState.apply {
+                            geoPoint = GeoPoint(location.latitude, location.longitude)
+                        }
+                    },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.BottomEnd)
+            ) {
+                Icon(painter = locationIconPainter, contentDescription = "Go to location")
+            }
+        }
     }
 }
+
