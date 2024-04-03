@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -31,13 +30,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.drawable.toBitmap
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.example.mapapp.TextMarker
 import com.example.mapapp.datastore.StoreMarkers
 import com.utsman.osmandcompose.MapProperties
@@ -103,7 +99,6 @@ fun Map(location: Location?) {
     var showDeleteMarkerDialog by remember { mutableStateOf(false) }
     var tempGeoPoint by remember { mutableStateOf<GeoPoint?>(null) }
     var textInput by remember { mutableStateOf("") }
-//var markerToDeleteIndex by remember { mutableStateOf(-1) }
 
     if (showAddMarkerDialog) {
         AlertDialog(
@@ -183,7 +178,6 @@ fun Map(location: Location?) {
             )
             markers.forEach { textMarker ->
                 val markerState = rememberMarkerState(geoPoint = textMarker.geoPoint)
-                //val markerIndex = textMarker.index
                 Marker(
                     state = markerState,
                     icon = poiIcon,
