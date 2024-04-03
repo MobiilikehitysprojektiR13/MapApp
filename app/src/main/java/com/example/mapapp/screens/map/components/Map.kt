@@ -1,6 +1,7 @@
 package com.example.mapapp.screens.map.components
 
 import android.graphics.drawable.Drawable
+import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mapapp.TextMarker
@@ -45,155 +45,169 @@ import org.osmdroid.library.R
 import org.osmdroid.util.GeoPoint
 
 @Composable
-fun Map() {
+fun Map(location: Location?) {
 
 
     val context = LocalContext.current
     val dataStore = StoreMarkers(context)
 
     val cameraState = rememberCameraState {
-        geoPoint = GeoPoint(-6.3970066, 106.8224316)
+        GeoPoint(-6.3970066, 106.8224316)
         zoom = 12.0
+
     }
+    val liveMarkerState = rememberMarkerState(
+        geoPoint = GeoPoint(-6.3970066, 106.8224316)
+    )
 
-    val locationIcon: Drawable? by remember {
-        mutableStateOf(context.getDrawable(R.drawable.ic_menu_mylocation))
-    }
+    if (location != null) {
+        cameraState.apply {
+            geoPoint = GeoPoint(location.latitude, location.longitude)
 
-    val poiIcon: Drawable? by remember {
-        mutableStateOf(context.getDrawable(R.drawable.marker_default))
-    }
-
-    val trashcanIcon = Icons.Default.Delete
-
-    val markers = remember { mutableStateListOf<TextMarker>() }
-    LaunchedEffect(Unit) {
-        dataStore.getMarkers.collect { markersList ->
-            markers.clear()
-            markers.addAll(markersList)
+            liveMarkerState.apply {
+                geoPoint = GeoPoint(location.latitude, location.longitude)
+            }
         }
-    }
-    var showAddMarkerDialog by remember { mutableStateOf(false) }
-    var showDeleteMarkerDialog by remember { mutableStateOf(false) }
-    var tempGeoPoint by remember { mutableStateOf<GeoPoint?>(null) }
-    var textInput by remember { mutableStateOf("") }
+
+
+        val locationIcon: Drawable? by remember {
+            mutableStateOf(context.getDrawable(R.drawable.ic_menu_mylocation))
+        }
+
+        val poiIcon: Drawable? by remember {
+            mutableStateOf(context.getDrawable(R.drawable.marker_default))
+        }
+
+        val trashcanIcon = Icons.Default.Delete
+
+        val markers = remember { mutableStateListOf<TextMarker>() }
+        LaunchedEffect(Unit) {
+            dataStore.getMarkers.collect { markersList ->
+                markers.clear()
+                markers.addAll(markersList)
+            }
+        }
+        var showAddMarkerDialog by remember { mutableStateOf(false) }
+        var showDeleteMarkerDialog by remember { mutableStateOf(false) }
+        var tempGeoPoint by remember { mutableStateOf<GeoPoint?>(null) }
+        var textInput by remember { mutableStateOf("") }
 //var markerToDeleteIndex by remember { mutableStateOf(-1) }
 
-    if (showAddMarkerDialog) {
-        AlertDialog(
-            onDismissRequest = { showAddMarkerDialog = false },
-            title = { Text("Add marker name") },
-            text = {
-                TextField(
-                    value = textInput,
-                    onValueChange = { textInput = it },
-                    label = { Text("Marker name") }
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        if (tempGeoPoint != null && textInput.isNotBlank()) {
-                            markers.add(
-                                TextMarker(
-                                    tempGeoPoint!!,
-                                    textInput, /*markers.size*/
-                                )
-                            )
-                            showAddMarkerDialog = false
-                            tempGeoPoint = null
-                            textInput = ""
-                            CoroutineScope(Dispatchers.IO).launch {
-                                dataStore.saveMarkers(markers)
-                            }
-
-                        }
-                    }
-                ) { Text("Add") }
-            },
-            dismissButton = {
-                Button(onClick = {
-                    showAddMarkerDialog = false
-                    textInput = ""
-                }) { Text("Cancel") }
-            }
-        )
-    }
-
-    if (showDeleteMarkerDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteMarkerDialog = false },
-            title = { Text("Delete Marker") },
-            text = { Text("Are you sure you want to delete this marker?") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        //markers.removeAt(markerToDeleteIndex)
-                        showDeleteMarkerDialog = false
-                    }
-                ) { Text("Delete") }
-            },
-            dismissButton = {
-                Button(onClick = {
-                    showDeleteMarkerDialog = false
-                }) { Text("Cancel") }
-            })
-    }
-
-    OpenStreetMap(
-        onMapLongClick = { geoPoint ->
-            tempGeoPoint = geoPoint
-            showAddMarkerDialog = true
-        },
-        modifier = Modifier.fillMaxSize(),
-        cameraState = cameraState,
-        properties = MapProperties(zoomButtonVisibility = ZoomButtonVisibility.NEVER)
-    ) {
-        markers.forEach { textMarker ->
-            val markerState = rememberMarkerState(geoPoint = textMarker.geoPoint)
-            //val markerIndex = textMarker.index
-            Marker(
-                state = markerState,
-                icon = poiIcon,
-                title = textMarker.text,
-                snippet = "Moro äijät"
-            ) {
-                Column(
-                    modifier = Modifier
-                        .height(100.dp)
-                        .width(100.dp)
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(7.dp)
-                        ),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // setup content of info window
-                    Text(text = it.title)
-                    Text(text = it.snippet, fontSize = 10.sp)
-                    IconButton(
+        if (showAddMarkerDialog) {
+            AlertDialog(
+                onDismissRequest = { showAddMarkerDialog = false },
+                title = { Text("Add marker name") },
+                text = {
+                    TextField(
+                        value = textInput,
+                        onValueChange = { textInput = it },
+                        label = { Text("Marker name") }
+                    )
+                },
+                confirmButton = {
+                    Button(
                         onClick = {
-                            //markerToDeleteIndex = markerIndex
-                            showDeleteMarkerDialog = true
-                        }
-                    ) {
-                        Icon(
-                            imageVector = trashcanIcon,
-                            contentDescription = "Delete Marker"
-                        )
-                    }
+                            if (tempGeoPoint != null && textInput.isNotBlank()) {
+                                markers.add(
+                                    TextMarker(
+                                        tempGeoPoint!!,
+                                        textInput, /*markers.size*/
+                                    )
+                                )
+                                showAddMarkerDialog = false
+                                tempGeoPoint = null
+                                textInput = ""
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    dataStore.saveMarkers(markers)
+                                }
 
+                            }
+                        }
+                    ) { Text("Add") }
+                },
+                dismissButton = {
+                    Button(onClick = {
+                        showAddMarkerDialog = false
+                        textInput = ""
+                    }) { Text("Cancel") }
                 }
+            )
+        }
+
+        if (showDeleteMarkerDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteMarkerDialog = false },
+                title = { Text("Delete Marker") },
+                text = { Text("Are you sure you want to delete this marker?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            //markers.removeAt(markerToDeleteIndex)
+                            showDeleteMarkerDialog = false
+                        }
+                    ) { Text("Delete") }
+                },
+                dismissButton = {
+                    Button(onClick = {
+                        showDeleteMarkerDialog = false
+                    }) { Text("Cancel") }
+                })
+        }
+
+        OpenStreetMap(
+            onMapLongClick = { geoPoint ->
+                tempGeoPoint = geoPoint
+                showAddMarkerDialog = true
+            },
+            modifier = Modifier.fillMaxSize(),
+            cameraState = cameraState,
+            properties = MapProperties(zoomButtonVisibility = ZoomButtonVisibility.NEVER)
+        ) {
+
+            Marker(
+                state = liveMarkerState,
+                icon = locationIcon
+            )
+            markers.forEach { textMarker ->
+                val markerState = rememberMarkerState(geoPoint = textMarker.geoPoint)
+                //val markerIndex = textMarker.index
+                Marker(
+                    state = markerState,
+                    icon = poiIcon,
+                    title = textMarker.text,
+                    snippet = "Moro äijät"
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .height(100.dp)
+                            .width(100.dp)
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(7.dp)
+                            ),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // setup content of info window
+                        Text(text = it.title)
+                        Text(text = it.snippet, fontSize = 10.sp)
+                        IconButton(
+                            onClick = {
+                                //markerToDeleteIndex = markerIndex
+                                showDeleteMarkerDialog = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = trashcanIcon,
+                                contentDescription = "Delete Marker"
+                            )
+                        }
+
+                    }
+                }
+
             }
 
         }
-
     }
-}
-
-@Preview
-@Composable
-fun MapPreview() {
-    Map()
 }
