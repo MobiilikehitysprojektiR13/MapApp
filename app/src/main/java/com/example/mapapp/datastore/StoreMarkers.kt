@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.mapapp.TextMarker
+import com.example.mapapp.models.TextMarker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.osmdroid.util.GeoPoint
@@ -19,9 +19,15 @@ class StoreMarkers(private val context: Context) {
 
     val getMarkers: Flow<List<TextMarker>> = context.dataStorage.data.map { preferences ->
         val serializedMarkers = preferences[MARKERS_KEY]
-        serializedMarkers?.split(";")?.map { markerString ->
-            val (latitude, longitude, name) = markerString.split(",")
-            TextMarker(GeoPoint(latitude.toDouble(), longitude.toDouble()), name)
+        serializedMarkers?.split(";")?.mapNotNull { markerString ->
+            val markerComponents = markerString.split(",")
+            if (markerComponents.size == 3) {
+                val (latitude, longitude, name) = markerComponents
+                TextMarker(GeoPoint(latitude.toDouble(), longitude.toDouble()), name)
+            } else {
+                // Log or handle invalid marker data
+                null
+            }
         } ?: emptyList()
     }
     suspend fun saveMarkers(markers: List<TextMarker>) {

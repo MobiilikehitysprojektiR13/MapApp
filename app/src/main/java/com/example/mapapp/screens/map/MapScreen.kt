@@ -15,7 +15,5 @@ fun MapScreen() {
             LocationStatus.DENIED -> Map(null)
             LocationStatus.SUCCESS -> Map(locationWithPermission.location)
         }
-
-
     }
 }
