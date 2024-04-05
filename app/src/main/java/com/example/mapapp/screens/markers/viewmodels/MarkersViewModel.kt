@@ -22,4 +22,11 @@ object MarkersViewModel : ViewModel() {
     fun addMarker(marker: TextMarker) {
             _markers.add(marker)
     }
+
+    fun getNextIndex(): Int {
+        return _markers.size + 1
+    }
+    fun deleteMarker(id: Int){
+
+    }
 }

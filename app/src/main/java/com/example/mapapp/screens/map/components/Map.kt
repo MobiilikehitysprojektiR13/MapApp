@@ -59,7 +59,6 @@ fun Map(location: Location?) {
 
     val markers = markersViewModel.markers
     val showAddMarkerDialog = remember { mutableStateOf(false) }
-    var showDeleteMarkerDialog by remember { mutableStateOf(false) }
     var tempGeoPoint by remember { mutableStateOf<GeoPoint?>(null) }
 
     LaunchedEffect(Unit) {
@@ -71,7 +70,6 @@ fun Map(location: Location?) {
         }
     }
 
-    val trashcanIcon = Icons.Default.Delete
 
     val cameraState = rememberCameraState {
         GeoPoint(39.1422222222, 34.1702777778)
@@ -110,25 +108,7 @@ fun Map(location: Location?) {
         AddMarkerDialog(showAddMarkerDialog, tempGeoPoint)
     }
 
-    if (showDeleteMarkerDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteMarkerDialog = false },
-            title = { Text("Delete Marker") },
-            text = { Text("Are you sure you want to delete this marker?") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        //markers.removeAt(markerToDeleteIndex)
-                        showDeleteMarkerDialog = false
-                    }
-                ) { Text("Delete") }
-            },
-            dismissButton = {
-                Button(onClick = {
-                    showDeleteMarkerDialog = false
-                }) { Text("Cancel") }
-            })
-    }
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (markersViewModel.loading.value) {
@@ -170,17 +150,6 @@ fun Map(location: Location?) {
                             // setup content of info window
                             Text(text = it.title)
                             Text(text = it.snippet, fontSize = 10.sp)
-                            IconButton(
-                                onClick = {
-                                    //markerToDeleteIndex = markerIndex
-                                    showDeleteMarkerDialog = true
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = trashcanIcon,
-                                    contentDescription = "Delete Marker"
-                                )
-                            }
 
                         }
                     }
