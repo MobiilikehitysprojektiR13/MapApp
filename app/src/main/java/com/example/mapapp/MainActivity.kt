@@ -10,17 +10,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.mapapp.ui.theme.MapAppTheme
-import org.osmdroid.util.GeoPoint
-import com.example.mapapp.ui.theme.components.NavigationHost
 import androidx.navigation.compose.rememberNavController
 import com.example.mapapp.components.BottomBar
+import com.example.mapapp.ui.theme.MapAppTheme
+import com.example.mapapp.ui.theme.components.NavigationHost
 
-data class TextMarker(
-    val geoPoint: GeoPoint,
-    val text: String,
-    //val index: Int
-)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
