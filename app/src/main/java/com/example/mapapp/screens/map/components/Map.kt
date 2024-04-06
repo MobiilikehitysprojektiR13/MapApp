@@ -81,7 +81,9 @@ fun Map(location: Location?) {
         geoPoint = GeoPoint(39.1422222222, 34.1702777778)
     )
 
-    if (location != null) {
+    var updateCameraState by remember { mutableStateOf(true) }
+
+    if (location != null && updateCameraState) {
         cameraState.apply {
             geoPoint = GeoPoint(location.latitude, location.longitude)
             zoom = 12.0
@@ -143,7 +145,6 @@ fun Map(location: Location?) {
                 cameraState = cameraState,
                 properties = MapProperties(zoomButtonVisibility = ZoomButtonVisibility.NEVER)
             ) {
-
                 Marker(
                     state = liveMarkerState,
                     icon = locationIcon
