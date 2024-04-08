@@ -25,9 +25,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.mapapp.components.ProgressIndicator
@@ -88,7 +90,9 @@ fun Map(location: Location?) {
     }
 
     val locationIcon: Drawable? by remember {
-        mutableStateOf(context.getDrawable(R.drawable.ic_menu_mylocation))
+        mutableStateOf(context.getDrawable(R.drawable.ic_menu_mylocation)?.apply {
+            DrawableCompat.setTint(this, Color.Red.toArgb())
+        })
     }
 
     val locationIconPainter = rememberAsyncImagePainter(model = locationIcon)
