@@ -21,9 +21,9 @@ class StoreMarkers(private val context: Context) {
         val serializedMarkers = preferences[MARKERS_KEY]
         serializedMarkers?.split(";")?.mapNotNull { markerString ->
             val markerComponents = markerString.split(",")
-            if (markerComponents.size == 3) {
-                val (latitude, longitude, name) = markerComponents
-                TextMarker(GeoPoint(latitude.toDouble(), longitude.toDouble()), name)
+            if (markerComponents.size == 4) {
+                val (index, latitude, longitude, name) = markerComponents
+                TextMarker(index.toInt(), GeoPoint(latitude.toDouble(), longitude.toDouble()), name)
             } else {
                 // Log or handle invalid marker data
                 null
@@ -32,7 +32,7 @@ class StoreMarkers(private val context: Context) {
     }
     suspend fun saveMarkers(markers: List<TextMarker>) {
         val serializedMarkers = markers.joinToString(";") { marker ->
-            "${marker.geoPoint.latitude},${marker.geoPoint.longitude},${marker.text}"
+            "${marker.index},${marker.geoPoint.latitude},${marker.geoPoint.longitude},${marker.text}"
 
         }
         context.dataStorage.edit { preferences ->

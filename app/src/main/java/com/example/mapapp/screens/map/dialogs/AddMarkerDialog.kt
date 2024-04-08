@@ -39,8 +39,10 @@ fun AddMarkerDialog(
                     onClick = {
                         if (geoPoint != null && textInput.value.isNotBlank()) {
                             showAddMarkerDialog.value = false
+                            val newIndex = markersViewModel.getNextIndex()
                             markersViewModel.addMarker(
                                 TextMarker(
+                                    index = newIndex,
                                     geoPoint = geoPoint,
                                     text = textInput.value
                                 )

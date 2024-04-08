@@ -12,13 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,6 +32,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.mapapp.components.ProgressIndicator
 import com.example.mapapp.datastore.StoreMarkers
+import com.example.mapapp.screens.map.dialogs.AddMarkerDialog
+import com.example.mapapp.screens.markers.viewmodels.MarkersViewModel
 import com.utsman.osmandcompose.MapProperties
 import com.utsman.osmandcompose.Marker
 import com.utsman.osmandcompose.OpenStreetMap
@@ -45,8 +42,6 @@ import com.utsman.osmandcompose.rememberCameraState
 import com.utsman.osmandcompose.rememberMarkerState
 import org.osmdroid.library.R
 import org.osmdroid.util.GeoPoint
-import com.example.mapapp.screens.map.dialogs.AddMarkerDialog
-import com.example.mapapp.screens.markers.viewmodels.MarkersViewModel
 
 @SuppressLint("UseCompatLoadingForDrawables")
 @Composable
@@ -57,9 +52,8 @@ fun Map(location: Location?) {
     val dataStore = StoreMarkers(context)
     val markersViewModel: MarkersViewModel = viewModel()
 
-    val markers = markersViewModel.markers
+    val markers by markersViewModel.markers.collectAsState()
     val showAddMarkerDialog = remember { mutableStateOf(false) }
-    var showDeleteMarkerDialog by remember { mutableStateOf(false) }
     var tempGeoPoint by remember { mutableStateOf<GeoPoint?>(null) }
 
     LaunchedEffect(Unit) {
@@ -71,7 +65,6 @@ fun Map(location: Location?) {
         }
     }
 
-    val trashcanIcon = Icons.Default.Delete
 
     val cameraState = rememberCameraState {
         GeoPoint(39.1422222222, 34.1702777778)
@@ -112,25 +105,7 @@ fun Map(location: Location?) {
         AddMarkerDialog(showAddMarkerDialog, tempGeoPoint)
     }
 
-    if (showDeleteMarkerDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteMarkerDialog = false },
-            title = { Text("Delete Marker") },
-            text = { Text("Are you sure you want to delete this marker?") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        //markers.removeAt(markerToDeleteIndex)
-                        showDeleteMarkerDialog = false
-                    }
-                ) { Text("Delete") }
-            },
-            dismissButton = {
-                Button(onClick = {
-                    showDeleteMarkerDialog = false
-                }) { Text("Cancel") }
-            })
-    }
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (markersViewModel.loading.value) {
@@ -171,17 +146,6 @@ fun Map(location: Location?) {
                             // setup content of info window
                             Text(text = it.title)
                             Text(text = it.snippet, fontSize = 10.sp)
-                            IconButton(
-                                onClick = {
-                                    //markerToDeleteIndex = markerIndex
-                                    showDeleteMarkerDialog = true
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = trashcanIcon,
-                                    contentDescription = "Delete Marker"
-                                )
-                            }
 
                         }
                     }
