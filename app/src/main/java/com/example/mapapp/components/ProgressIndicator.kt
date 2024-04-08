@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,7 +24,7 @@ fun ProgressIndicator() {
             .fillMaxSize()
             .fillMaxWidth()
             .padding(20.dp)
-    ){
+    ) {
         CircularProgressIndicator(
             modifier = Modifier.size(150.dp),
             color = Color.Gray,

@@ -13,7 +13,6 @@ object MarkersViewModel : ViewModel() {
     private val _markers = MutableStateFlow<List<TextMarker>>(emptyList())
     val markers: StateFlow<List<TextMarker>> = _markers
 
-
     val loaded = mutableStateOf(false)
     val loading = mutableStateOf(false)
 
@@ -29,9 +28,7 @@ object MarkersViewModel : ViewModel() {
         }
     }
 
-    fun getNextIndex(): Int {
-        return _markers.value.maxOfOrNull { it.index }?.plus(1) ?: 0
-    }
+    fun getNextIndex(): Int = _markers.value.maxOfOrNull { it.index }?.plus(1) ?: 0
 
     fun deleteMarker(id: Int) {
         _markers.update { current ->

@@ -30,6 +30,7 @@ class StoreMarkers(private val context: Context) {
             }
         } ?: emptyList()
     }
+
     suspend fun saveMarkers(markers: List<TextMarker>) {
         val serializedMarkers = markers.joinToString(";") { marker ->
             "${marker.index},${marker.geoPoint.latitude},${marker.geoPoint.longitude},${marker.text}"

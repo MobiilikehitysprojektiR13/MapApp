@@ -28,14 +28,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
                     Scaffold(modifier = Modifier.fillMaxSize(),
-
-                     bottomBar = {
-                        if (BottomNavigationItem().bottomNavigationItems().any {
-                                it.route == navBackStackEntry?.destination?.route
-                            }) {
-                            BottomBar(navController = navController)
-                        }
-                    }) { paddingValues ->
+                        bottomBar = {
+                            if (BottomNavigationItem().bottomNavigationItems().any {
+                                    it.route == navBackStackEntry?.destination?.route
+                                }) {
+                                BottomBar(navController = navController)
+                            }
+                        }) { paddingValues ->
                         NavigationHost(navController = navController, paddingValues = paddingValues)
                     }
                 }

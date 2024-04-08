@@ -1,7 +1,6 @@
 package com.example.mapapp.screens.map.components
 
 import android.annotation.SuppressLint
-import android.graphics.drawable.Drawable
 import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,11 +25,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mapapp.R
 import com.example.mapapp.components.ProgressIndicator
 import com.example.mapapp.datastore.StoreMarkers
 import com.example.mapapp.screens.map.dialogs.AddMarkerDialog
@@ -41,13 +42,11 @@ import com.utsman.osmandcompose.OpenStreetMap
 import com.utsman.osmandcompose.ZoomButtonVisibility
 import com.utsman.osmandcompose.rememberCameraState
 import com.utsman.osmandcompose.rememberMarkerState
-import org.osmdroid.library.R
 import org.osmdroid.util.GeoPoint
 
 @SuppressLint("UseCompatLoadingForDrawables")
 @Composable
 fun Map(location: Location?) {
-
 
     val context = LocalContext.current
     val dataStore = StoreMarkers(context)
@@ -57,25 +56,24 @@ fun Map(location: Location?) {
     val showAddMarkerDialog = remember { mutableStateOf(false) }
     var tempGeoPoint by remember { mutableStateOf<GeoPoint?>(null) }
 
-    LaunchedEffect(Unit) {
-        markersViewModel.loading.value = true
+    LaunchedEffect("load_markers") {
         dataStore.getMarkers.collect {
-            markersViewModel.getMarkers(it)
-            markersViewModel.loading.value = false
-            markersViewModel.loaded.value = true
+            if (it.isNotEmpty() && !markersViewModel.loaded.value) {
+                markersViewModel.loaded.value = true
+                markersViewModel.getMarkers(it)
+            }
         }
     }
 
-
     val cameraState = rememberCameraState {
         GeoPoint(39.1422222222, 34.1702777778)
-
     }
+
     val liveMarkerState = rememberMarkerState(
         geoPoint = GeoPoint(39.1422222222, 34.1702777778)
     )
 
-    var updateCameraState by remember { mutableStateOf(true) }
+    val updateCameraState by remember { mutableStateOf(true) }
 
     if (location != null && updateCameraState) {
         cameraState.apply {
@@ -86,10 +84,6 @@ fun Map(location: Location?) {
         liveMarkerState.apply {
             geoPoint = GeoPoint(location.latitude, location.longitude)
         }
-    }
-
-    val poiIcon: Drawable? by remember {
-        mutableStateOf(context.getDrawable(R.drawable.marker_default))
     }
 
     LaunchedEffect(markers) {
@@ -114,14 +108,14 @@ fun Map(location: Location?) {
                 properties = MapProperties(zoomButtonVisibility = ZoomButtonVisibility.NEVER)
             ) {
                 Marker(state = liveMarkerState,
-                    icon = context.getDrawable(R.drawable.ic_menu_mylocation)?.apply {
+                    icon = context.getDrawable(R.drawable.baseline_my_location_24)?.apply {
                         setTint(Color.Red.toArgb())
                     })
                 markers.forEach { textMarker ->
                     val markerState = rememberMarkerState(geoPoint = textMarker.geoPoint)
                     Marker(
                         state = markerState,
-                        icon = poiIcon,
+                        icon = context.getDrawable(org.osmdroid.library.R.drawable.marker_default),
                         title = textMarker.text,
                         snippet = "Moro äijät"
                     ) {
@@ -137,12 +131,9 @@ fun Map(location: Location?) {
                         ) {
                             Text(text = it.title)
                             Text(text = it.snippet, fontSize = 10.sp)
-
                         }
                     }
-
                 }
-
             }
         }
 
@@ -162,7 +153,7 @@ fun Map(location: Location?) {
                     .align(Alignment.BottomEnd)
             ) {
                 Icon(
-                    painterResource(R.drawable.ic_menu_mylocation),
+                    ImageVector.vectorResource(R.drawable.baseline_my_location_24),
                     contentDescription = "Go to location"
                 )
             }

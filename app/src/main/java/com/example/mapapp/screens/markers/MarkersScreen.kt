@@ -1,13 +1,11 @@
 package com.example.mapapp.screens.markers
 
 import android.util.Log
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -32,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mapapp.datastore.StoreMarkers
-import com.example.mapapp.models.TextMarker
 import com.example.mapapp.screens.markers.viewmodels.MarkersViewModel
 import org.osmdroid.util.GeoPoint
 
@@ -49,10 +46,13 @@ fun MarkersScreen() {
     LaunchedEffect(markers) {
         markersStore.saveMarkers(markers)
     }
-    Column ( modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally){
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(
             text = "Map Markers",
             style = MaterialTheme.typography.titleLarge,
@@ -100,9 +100,11 @@ fun MarkersScreen() {
                             IconButton(onClick = {
                                 Log.d("DeleteMarker", "Deleting marker with index: ${it.index}")
                                 markersViewModel.deleteMarker(it.index)
-                            }
-                            ) {
-                                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete"
+                                )
                             }
                         }
                     }
@@ -112,7 +114,6 @@ fun MarkersScreen() {
     }
 
 }
-
 
 fun geoPointToLatitudeText(geoPoint: GeoPoint): String {
     return "Lat: ${geoPoint.latitude}"
