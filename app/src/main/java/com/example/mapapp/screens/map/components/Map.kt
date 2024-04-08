@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mapapp.R
 import com.example.mapapp.components.ProgressIndicator
@@ -116,13 +115,12 @@ fun Map(location: Location?) {
                     Marker(
                         state = markerState,
                         icon = context.getDrawable(org.osmdroid.library.R.drawable.marker_default),
-                        title = textMarker.text,
-                        snippet = "Moro äijät"
+                        title = textMarker.text
                     ) {
                         Column(
                             modifier = Modifier
-                                .height(100.dp)
-                                .width(100.dp)
+                                .height(70.dp)
+                                .width(150.dp)
                                 .background(
                                     color = Color.White, shape = RoundedCornerShape(8.dp)
                                 ),
@@ -130,7 +128,6 @@ fun Map(location: Location?) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(text = it.title)
-                            Text(text = it.snippet, fontSize = 10.sp)
                         }
                     }
                 }
