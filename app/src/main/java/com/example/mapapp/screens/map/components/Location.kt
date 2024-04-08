@@ -54,12 +54,10 @@ fun Location(content: @Composable (LocationWithPermission) -> Unit) {
     LaunchedEffect(locationPermissionState) {
         val status = locationPermissionState.status
         when {
-            status.isGranted -> {
-                locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, 2000, 10f
-                ) {
-                    location.value = LocationWithPermission(it, LocationStatus.SUCCESS)
-                }
+            status.isGranted -> locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER, 2000, 10f
+            ) {
+                location.value = LocationWithPermission(it, LocationStatus.SUCCESS)
             }
 
             status.shouldShowRationale -> requestPermissionLauncher.launch(

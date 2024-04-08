@@ -8,9 +8,8 @@ import com.example.mapapp.screens.map.components.Map
 
 @Composable
 fun MapScreen() {
-
     Location { locationWithPermission ->
-        when(locationWithPermission.status) {
+        when (locationWithPermission.status) {
             LocationStatus.FETCHING -> ProgressIndicator()
             LocationStatus.DENIED -> Map(null)
             LocationStatus.SUCCESS -> Map(locationWithPermission.location)

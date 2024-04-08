@@ -1,6 +1,5 @@
 package com.example.mapapp.components
 
-
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -11,7 +10,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.mapapp.BottomNavigationItem
-
 
 @Composable
 fun BottomBar(navController: NavController) {
@@ -41,8 +39,7 @@ fun BottomBar(navController: NavController) {
                         launchSingleTop = true
                         restoreState = true
                     }
-                }
-            )
+                })
         }
     }
 }
