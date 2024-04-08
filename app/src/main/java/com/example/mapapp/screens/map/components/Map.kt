@@ -27,11 +27,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberAsyncImagePainter
 import com.example.mapapp.components.ProgressIndicator
 import com.example.mapapp.datastore.StoreMarkers
 import com.example.mapapp.screens.map.dialogs.AddMarkerDialog
@@ -59,7 +58,7 @@ fun Map(location: Location?) {
     var tempGeoPoint by remember { mutableStateOf<GeoPoint?>(null) }
 
     LaunchedEffect(Unit) {
-            markersViewModel.loading.value = true
+        markersViewModel.loading.value = true
         dataStore.getMarkers.collect {
             markersViewModel.getMarkers(it)
             markersViewModel.loading.value = false
@@ -84,18 +83,10 @@ fun Map(location: Location?) {
             zoom = 12.0
         }
 
-            liveMarkerState.apply {
-                geoPoint = GeoPoint(location.latitude, location.longitude)
-            }
+        liveMarkerState.apply {
+            geoPoint = GeoPoint(location.latitude, location.longitude)
+        }
     }
-
-    val locationIcon: Drawable? by remember {
-        mutableStateOf(context.getDrawable(R.drawable.ic_menu_mylocation)?.apply {
-            DrawableCompat.setTint(this, Color.Red.toArgb())
-        })
-    }
-
-    val locationIconPainter = rememberAsyncImagePainter(model = locationIcon)
 
     val poiIcon: Drawable? by remember {
         mutableStateOf(context.getDrawable(R.drawable.marker_default))
@@ -108,8 +99,6 @@ fun Map(location: Location?) {
     if (showAddMarkerDialog.value) {
         AddMarkerDialog(showAddMarkerDialog, tempGeoPoint)
     }
-
-
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (markersViewModel.loading.value) {
@@ -124,10 +113,10 @@ fun Map(location: Location?) {
                 cameraState = cameraState,
                 properties = MapProperties(zoomButtonVisibility = ZoomButtonVisibility.NEVER)
             ) {
-                Marker(
-                    state = liveMarkerState,
-                    icon = locationIcon
-                )
+                Marker(state = liveMarkerState,
+                    icon = context.getDrawable(R.drawable.ic_menu_mylocation)?.apply {
+                        setTint(Color.Red.toArgb())
+                    })
                 markers.forEach { textMarker ->
                     val markerState = rememberMarkerState(geoPoint = textMarker.geoPoint)
                     Marker(
@@ -141,13 +130,11 @@ fun Map(location: Location?) {
                                 .height(100.dp)
                                 .width(100.dp)
                                 .background(
-                                    color = Color.White,
-                                    shape = RoundedCornerShape(7.dp)
+                                    color = Color.White, shape = RoundedCornerShape(8.dp)
                                 ),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            // setup content of info window
                             Text(text = it.title)
                             Text(text = it.snippet, fontSize = 10.sp)
 
@@ -167,15 +154,17 @@ fun Map(location: Location?) {
                         zoom = 12.0
                     }
 
-                        liveMarkerState.apply {
-                            geoPoint = GeoPoint(location.latitude, location.longitude)
-                        }
-                    },
-                modifier = Modifier
+                    liveMarkerState.apply {
+                        geoPoint = GeoPoint(location.latitude, location.longitude)
+                    }
+                }, modifier = Modifier
                     .padding(16.dp)
                     .align(Alignment.BottomEnd)
             ) {
-                Icon(painter = locationIconPainter, contentDescription = "Go to location")
+                Icon(
+                    painterResource(R.drawable.ic_menu_mylocation),
+                    contentDescription = "Go to location"
+                )
             }
         }
     }
